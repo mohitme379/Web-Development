@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-mongoose.connect("mongodb://localhost:27017/todolist", {
+mongoose.connect("mongodb+srv://mohit:possible@cluster0-ptvbp.mongodb.net/todolist", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -25,6 +25,13 @@ const item1 = new Item({
 });
 
 const defaultItems = [item1];
+
+const listSchema = {
+  name: String,
+  items: [itemsSchema]
+};
+
+const List = mongoose.model("List", listSchema);
 
 app.post("/", (req, res) => {
   const newListItem = req.body.newItem;
@@ -63,10 +70,16 @@ app.get("/", (req, res) => {
   });
 });
 
-// app.get("/work", (req, res) => {
-//   res.render("list", { listTitle: "Work List", items: workItems });
-// });
+app.get("/:paramName", (req, res) => {
+  const paramName = req.params.paramName;
 
-app.listen(3000, () => {
+  const list = new List({
+    name: paramName,
+    items: defaultItems
+  });
+  list.save();
+});
+
+app.listen(process.env.PORT || 3000, () => {
   console.log("Server is Started !");
 });
